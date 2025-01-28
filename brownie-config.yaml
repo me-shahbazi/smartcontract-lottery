@@ -5,3 +5,8 @@ compiler:
   solc:
     remappings:
       - '@chainlink=smartcontractkit/chainlink-brownie-contracts@1.3.0'
+
+network:
+  avax-test:
+    ethusd: '0x86d67c3D38D2bCeE722E601025C25a575021c6EA'
+    btcusd: '0x31CF013A08c6Ac228C94551d535d5BAfE19c602a'

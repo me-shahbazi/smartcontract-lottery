@@ -11,7 +11,7 @@ contract lottery{
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
 
-    constructor(address _priceFeedAddress) public {
+    constructor(address _priceFeedAddress) {
         owner = payable(msg.sender);
         entranceFee = 50 * (10**18);
         priceFeed = AggregatorV3Interface(_priceFeedAddress);
