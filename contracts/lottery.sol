@@ -14,7 +14,7 @@ contract lottery{
     function enter() public payable{
         // $50 minimum entrance fee
 
-        listOfPlayers.push(msg.sender);
+        listOfPlayers.push(payable(msg.sender));
     }
 
     function getEntranceFee() public {}
