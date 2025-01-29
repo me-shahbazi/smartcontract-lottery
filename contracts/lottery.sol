@@ -6,7 +6,6 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 
 contract lottery{
     address payable public owner;
-    mapping (address => uint256) values;
     address payable[] public listOfPlayers;
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
@@ -28,7 +27,8 @@ contract lottery{
         uint8 decimals = priceFeed.decimals();
         (, int256 price, , , ) = priceFeed.latestRoundData();
         uint256 adjustedPrice = uint256(price) * (10**(18-decimals));
-        return adjustedPrice;
+        uint256 entranceCost = (entranceFee * 10**18)/adjustedPrice;
+        return entranceCost;
     }
 
     function startLottery() public {}
