@@ -6,6 +6,6 @@
 
 ## Testing Solutions:
 
-1. mainnet-fork
-2. development with mocks
-3. testnet
+1. mainnet-fork (using Infura or Alchemy)
+2. development with mocks (deploy mock Contracts)
+3. testnet (fuji, sepolia, ...)
