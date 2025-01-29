@@ -3,7 +3,8 @@ from brownie import lottery # type: ignore
 
 def deployOn_TestNet(_new, _currentNetwork):
     
-    if _new:
+    if _new or _currentNetwork.startswith('mainnet-fork'):
+        
         if _currentNetwork == 'avax-test':
             testAccount = accounts.load('dev-FujiAvalanche')
         elif _currentNetwork == 'sepolia':
@@ -19,7 +20,7 @@ def deployOn_TestNet(_new, _currentNetwork):
         
 def test_getEntranceFee():
     Current_Network= network.show_active()  # type: ignore
-    deployedContract = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
+    deployedContract = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
     entranceCost = deployedContract.getEntranceFee()
     print("entranceCost is equal to:", entranceCost)
     print("Current **Estimated** ETH price: ", 50/(entranceCost/10**18)) # Validation: https://data.chain.link/feeds/ethereum/mainnet/eth-usd
