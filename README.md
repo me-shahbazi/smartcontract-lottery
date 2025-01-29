@@ -4,7 +4,7 @@
 2. An admin will choose when the lottery is over.
 3. The lottery will select a random winner.
 
-## How do we want to test this?
+## Testing Solutions?
 
 1. mainnet-fork
 2. development with mocks
