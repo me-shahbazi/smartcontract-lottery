@@ -10,13 +10,22 @@ contract lottery{
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
 
+    enum LOTTERY_STATES {
+        OPEN,//   0
+        CLOSED,// 1
+        CALCULATING_WINNER
+    }
+    LOTTERY_STATES public lotteryState;
+
     constructor(address _priceFeedAddress) {
         owner = payable(msg.sender);
         entranceFee = 50 * (10**18);
         priceFeed = AggregatorV3Interface(_priceFeedAddress);
+        lotteryState = LOTTERY_STATES.CLOSED;
     }
 
     function enter() public payable{
+        require(lotteryState == LOTTERY_STATES.OPEN, "Lottery not Started Yet!");
         // $50 minimum entrance fee
         require(msg.value >= getEntranceFee(), "Not enough ETH");
         listOfPlayers.push(payable(msg.sender));
