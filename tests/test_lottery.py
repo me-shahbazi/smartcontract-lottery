@@ -25,3 +25,10 @@ def test_getEntranceFee():
     print("entranceCost is equal to:", entranceCost)
     print("Current **Estimated** ETH price: ", 50/(entranceCost/10**18)) # Validation: https://data.chain.link/feeds/ethereum/mainnet/eth-usd
     assert entranceCost >= 0.015*10**18
+    
+def test_rand():
+    Current_Network= network.show_active()  # type: ignore
+    deployedContract = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
+    randomNumber = deployedContract.endLottery()
+    print("Random Calculated Number:", randomNumber)
+    assert randomNumber in range(100)
