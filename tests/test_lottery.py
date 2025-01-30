@@ -14,13 +14,14 @@ def deployOn_TestNet(_new, _currentNetwork):
         
         deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'],{"from": testAccount})
     else:
+        testAccount = None
         deployedContract = lottery[-1]
     
-    return deployedContract
+    return deployedContract, testAccount
         
 def test_getEntranceFee():
     Current_Network= network.show_active()  # type: ignore
-    deployedContract = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
+    deployedContract, _ = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
     entranceCost = deployedContract.getEntranceFee()
     print("entranceCost is equal to:", entranceCost)
     print("Current **Estimated** ETH price: ", 50/(entranceCost/10**18)) # Validation: https://data.chain.link/feeds/ethereum/mainnet/eth-usd
@@ -28,7 +29,7 @@ def test_getEntranceFee():
     
 def test_rand():
     Current_Network= network.show_active()  # type: ignore
-    deployedContract = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
-    randomNumber = deployedContract.endLottery()
+    deployedContract, ownerAccount = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
+    randomNumber = deployedContract.endLottery({"from": ownerAccount})
     print("Random Calculated Number:", randomNumber)
     assert randomNumber in range(100)

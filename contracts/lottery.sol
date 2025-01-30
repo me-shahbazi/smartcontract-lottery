@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol"; //ignore
-import "@openzeppelin/contracts/access/Ownable.sol"; //ignore
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract lottery is Ownable {
 
@@ -44,7 +44,7 @@ contract lottery is Ownable {
         lotteryState = LOTTERY_STATES.OPEN;
     }
 
-    function endLottery() public onlyOwner returns(uint) {
+    function endLottery() public onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you ganna call this func using brownie
         uint rand = uint256(keccak256(abi.encodePacked(block.number))) % 100;
         return rand;
 
