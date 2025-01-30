@@ -44,7 +44,7 @@ contract lottery is Ownable {
         lotteryState = LOTTERY_STATES.OPEN;
     }
 
-    function endLottery() public onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you ganna call this func using brownie
+    function endLottery() public onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
         uint rand = uint256(keccak256(abi.encodePacked(block.number))) % 100;
         return rand;
 
