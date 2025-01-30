@@ -31,5 +31,6 @@ def test_rand():
     Current_Network= network.show_active()  # type: ignore
     deployedContract, ownerAccount = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
     randomNumber = deployedContract.randomNumCalc({"from": ownerAccount})
+    # Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
     print("Random Calculated Number:", randomNumber)
     assert randomNumber in range(100)
