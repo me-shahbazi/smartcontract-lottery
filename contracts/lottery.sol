@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
+contract lottery is Ownable {
 
-contract lottery{
-    address payable public owner;
     address payable[] public listOfPlayers;
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
@@ -17,8 +17,7 @@ contract lottery{
     }
     LOTTERY_STATES public lotteryState;
 
-    constructor(address _priceFeedAddress) {
-        owner = payable(msg.sender);
+    constructor(address _priceFeedAddress)  Ownable(msg.sender) {  // Pass msg.sender as initial owner
         entranceFee = 50 * (10**18);
         priceFeed = AggregatorV3Interface(_priceFeedAddress);
         lotteryState = LOTTERY_STATES.CLOSED;
@@ -40,8 +39,13 @@ contract lottery{
         return entranceCost;
     }
 
-    function startLottery() public {}
+    function startLottery() public onlyOwner {
+        require(lotteryState == LOTTERY_STATES.CLOSED, "Lottery already started");
+        lotteryState = LOTTERY_STATES.OPEN;
+    }
 
-    function endLottery() public {}
+    function endLottery() public onlyOwner {
+
+    }
 
 }
