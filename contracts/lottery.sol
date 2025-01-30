@@ -43,11 +43,13 @@ contract lottery is Ownable {
         require(lotteryState == LOTTERY_STATES.CLOSED, "Lottery already started");
         lotteryState = LOTTERY_STATES.OPEN;
     }
-
-    function endLottery() public view onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
-        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, block.difficulty, msg.data))) % 100;
+    
+    function randomNumCalc() public view onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
+        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, block.difficulty, block.prevrandao, msg.data))) % 100;
         return rand;
 
     }
+
+    function endLottery() public view onlyOwner returns(uint) {}
 
 }
