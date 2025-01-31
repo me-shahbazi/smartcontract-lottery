@@ -4,11 +4,13 @@ pragma solidity ^0.8.0;
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract lottery is Ownable {
 
+contract lottery is  Ownable {
+    // Ownable
     address payable[] public listOfPlayers;
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
+
 
     enum LOTTERY_STATES {
         OPEN,//   0
@@ -17,10 +19,10 @@ contract lottery is Ownable {
     }
     LOTTERY_STATES public lotteryState;
 
-    constructor(address _priceFeedAddress)  Ownable(msg.sender) {  // Pass msg.sender as initial owner
-        entranceFee = 50 * (10**18);
-        priceFeed = AggregatorV3Interface(_priceFeedAddress);
-        lotteryState = LOTTERY_STATES.CLOSED;
+    constructor(address _priceFeedAddress) Ownable(msg.sender) {  
+            entranceFee = 50 * (10**18);
+            priceFeed = AggregatorV3Interface(_priceFeedAddress);
+            lotteryState = LOTTERY_STATES.CLOSED;
     }
 
     function enter() public payable{
@@ -45,11 +47,12 @@ contract lottery is Ownable {
     }
     
     function randomNumCalc() public view onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
-        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, block.difficulty, block.prevrandao, msg.data))) % 100;
+        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, /*block.difficulty,*/ block.prevrandao, msg.data))) % 100;
         return rand;
-
     }
 
-    function endLottery() public view onlyOwner returns(uint) {}
+    function endLottery() public view onlyOwner returns(uint) {
+
+    }
 
 }
