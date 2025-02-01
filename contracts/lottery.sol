@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
@@ -41,6 +41,8 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256[] randomWords,
         uint256 payment
     );
+    event RequestSent(uint256 requestId, uint32 numWords);
+
 
     //********************* */
 
@@ -95,6 +97,14 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256 reqPrice;
 
         (requestId, reqPrice) = requestRandomness(callbackGasLimit, requestConfirmations, numWords, extraArgs);
+        s_requests[requestId] = RequestStatus({
+            paid: reqPrice,
+            randomWords: new uint256[](0),
+            fulfilled: false
+        });
+        requestIds.push(requestId);
+        lastRequestId = requestId;
+        emit RequestSent(requestId, numWords);
         return requestId;
     }
 
