@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
@@ -10,12 +11,38 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 
 
 
-contract lottery is  Ownable {
-    // Ownable
+contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
+
     address payable[] public listOfPlayers;
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
 
+    //********************* */
+    // hardcoded for Sepolia
+    address internal wrapperAddress = 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1;
+    address internal linkAddress = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
+
+    uint32 internal numWords = 1;
+    uint16 internal requestConfirmations = 3;
+    uint32 internal callbackGasLimit = 100000;
+    
+    uint256[] public requestIds;
+    uint256 public lastRequestId;
+    struct RequestStatus {
+        uint256 paid; // amount paid in link
+        bool fulfilled; // whether the request has been successfully fulfilled
+        uint256[] randomWords;
+    }
+    mapping(uint256 => RequestStatus) internal s_requests;
+
+    ///
+    event RequestFulfilled(
+        uint256 requestId,
+        uint256[] randomWords,
+        uint256 payment
+    );
+
+    //********************* */
 
     enum LOTTERY_STATES {
         OPEN,//   0
@@ -24,7 +51,10 @@ contract lottery is  Ownable {
     }
     LOTTERY_STATES public lotteryState;
 
-    constructor(address _priceFeedAddress) Ownable(msg.sender) {  
+    constructor(address _priceFeedAddress)
+                ConfirmedOwner(msg.sender)
+                VRFV2PlusWrapperConsumerBase(wrapperAddress) 
+        {  
             entranceFee = 50 * (10**18);
             priceFeed = AggregatorV3Interface(_priceFeedAddress);
             lotteryState = LOTTERY_STATES.CLOSED;
@@ -52,13 +82,48 @@ contract lottery is  Ownable {
     }
     
     function randomNumCalc() public view onlyOwner returns(uint) { // Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
-        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, /*block.difficulty,*/ block.prevrandao, msg.data))) % 100;
+        uint rand = uint256(keccak256(abi.encodePacked(block.number,blockhash(block.number-5), block.timestamp, block.difficulty, /*block.prevrandao,*/ msg.data))) % 100;
         return rand;
     }
 
-    function endLottery() public view onlyOwner returns(uint) {
+    function endLottery() public onlyOwner returns(uint256) { //external vs public?
         lotteryState = LOTTERY_STATES.CALCULATING_WINNER;
+        // ***  *** *** ***
+        bool enableNativePayment = false;
+        bytes memory extraArgs = VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: enableNativePayment}));
+        uint256 requestId;
+        uint256 reqPrice;
 
+        (requestId, reqPrice) = requestRandomness(callbackGasLimit, requestConfirmations, numWords, extraArgs);
+        return requestId;
+    }
+
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {
+        require(s_requests[_requestId].paid > 0, "request not found");
+        s_requests[_requestId].fulfilled = true;
+        s_requests[_requestId].randomWords = _randomWords;
+        emit RequestFulfilled(
+            _requestId,
+            _randomWords,
+            s_requests[_requestId].paid
+        );
+    }
+
+    function withdrawLink() public onlyOwner {
+        LinkTokenInterface link = LinkTokenInterface(linkAddress);
+        require(
+            link.transfer(msg.sender, link.balanceOf(address(this))),
+            "Unable to transfer"
+        );
+    }
+
+    event Received(address, uint256);
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
 
 }
