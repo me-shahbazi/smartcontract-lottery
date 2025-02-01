@@ -12,6 +12,12 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 
 
 contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
+    event RequestSent(uint256 requestId, uint32 numWords);
+    event RequestFulfilled(
+        uint256 requestId,
+        uint256[] randomWords,
+        uint256 payment
+    );
 
     address payable[] public listOfPlayers;
     uint256 public entranceFee;
@@ -35,13 +41,6 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     }
     mapping(uint256 => RequestStatus) public s_requests;
     uint256 public myRand;
-    ///
-    event RequestFulfilled(
-        uint256 requestId,
-        uint256[] randomWords,
-        uint256 payment
-    );
-    event RequestSent(uint256 requestId, uint32 numWords);
 
 
     //********************* */
@@ -99,8 +98,8 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         (requestId, reqPrice) = requestRandomness(callbackGasLimit, requestConfirmations, numWords, extraArgs);
         s_requests[requestId] = RequestStatus({
             paid: reqPrice,
-            fulfilled: false,
-            randomWords: new uint256[](0)
+            randomWords: new uint256[](0),
+            fulfilled: false
         });
         requestIds.push(requestId);
         lastRequestId = requestId;
