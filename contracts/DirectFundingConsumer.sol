@@ -31,8 +31,7 @@ contract DirectFundingConsumer is VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         bool fulfilled; // whether the request has been successfully fulfilled
         uint256[] randomWords;
     }
-    mapping(uint256 => RequestStatus)
-        internal s_requests; /* requestId --> requestStatus */
+    mapping(uint256 => RequestStatus) public s_requests; /* requestId --> requestStatus */
 
     // past requests Id.
     uint256[] public requestIds;
