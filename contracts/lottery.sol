@@ -22,7 +22,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     address internal wrapperAddress = 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1;
     address internal linkAddress = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
 
-    uint32 internal numWords = 1;
+    uint32 internal numWords = 2;
     uint16 internal requestConfirmations = 3;
     uint32 internal callbackGasLimit = 100000;
     
@@ -33,7 +33,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         bool fulfilled; // whether the request has been successfully fulfilled
         uint256[] randomWords;
     }
-    mapping(uint256 => RequestStatus) internal s_requests;
+    mapping(uint256 => RequestStatus) public s_requests;
 
     ///
     event RequestFulfilled(
