@@ -34,7 +34,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256[] randomWords;
     }
     mapping(uint256 => RequestStatus) public s_requests;
-
+    uint256 public myRand;
     ///
     event RequestFulfilled(
         uint256 requestId,
@@ -115,6 +115,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         require(s_requests[_requestId].paid > 0, "request not found");
         s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
+        myRand = _randomWords[0];
         emit RequestFulfilled(
             _requestId,
             _randomWords,
