@@ -20,6 +20,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     );
 
     address payable[] public listOfPlayers;
+    address payable public Winner;
     uint256 public entranceFee;
     AggregatorV3Interface internal priceFeed;
 
@@ -30,7 +31,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
 
     uint32 internal numWords = 2;
     uint16 internal requestConfirmations = 3;
-    uint32 internal callbackGasLimit = 200000;
+    uint32 internal callbackGasLimit = 120000;//Gwei
     
     uint256[] public requestIds;
     uint256 public lastRequestId;
@@ -40,7 +41,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256[] randomWords;
     }
     mapping(uint256 => RequestStatus) public s_requests;
-    uint256 public myRand;
+    uint256[] public myRand;
 
 
     //********************* */
@@ -111,15 +112,25 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
+        require(lotteryState == LOTTERY_STATES.CALCULATING_WINNER, "Not Yet!");
         require(s_requests[_requestId].paid > 0, "request not found");
         s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
-        myRand = _randomWords[0];
+        myRand = _randomWords;
+
+        uint WinnerIndex = _randomWords[0] % listOfPlayers.length;
+        Winner = listOfPlayers[WinnerIndex];
+        Winner.transfer(address(this).balance);
+
         emit RequestFulfilled(
             _requestId,
             _randomWords,
             s_requests[_requestId].paid
         );
+        
+        listOfPlayers = new address payable[](0);
+        lotteryState = LOTTERY_STATES.CLOSED;
+
     }
 
     function withdrawLink() public onlyOwner {
