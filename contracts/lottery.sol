@@ -30,14 +30,14 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
 
     uint32 internal numWords = 2;
     uint16 internal requestConfirmations = 3;
-    uint32 internal callbackGasLimit = 120000;//Gwei
+    uint32 internal callbackGasLimit = 300000;//Gwei
     
     uint256[] public requestIds;
     uint256 public lastRequestId;
     struct RequestStatus {
         uint256 paid; // amount paid in link
-        bool fulfilled; // whether the request has been successfully fulfilled
         uint256[] randomWords;
+        bool fulfilled; // whether the request has been successfully fulfilled
     }
     mapping(uint256 => RequestStatus) public s_requests;
     uint256[] public myRand;
@@ -52,6 +52,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     }
     LOTTERY_STATES public lotteryState;
     //fuji: 0x86d67c3D38D2bCeE722E601025C25a575021c6EA,0x327B83F409E1D5f13985c6d0584420FA648f1F56,0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846
+    //sepo: 0x694AA1769357215DE4FAC081bf1f309aDC325306,0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1,0x779877A7B0D9E8603169DdbD7836e478b4624789
     constructor(address _priceFeedAddress, address _wrapperAddress, address _link)
                 ConfirmedOwner(msg.sender)
                 VRFV2PlusWrapperConsumerBase(_wrapperAddress) 
