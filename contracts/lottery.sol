@@ -30,7 +30,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
 
     uint32 internal numWords = 2;
     uint16 internal requestConfirmations = 3;
-    uint32 internal callbackGasLimit = 300000;//Gwei
+    uint32 internal callbackGasLimit = 6000000;//Gwei
     
     uint256[] public requestIds;
     uint256 public lastRequestId;
@@ -104,6 +104,9 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
             randomWords: new uint256[](0),
             fulfilled: false
         });
+        // s_requests[requestId].randomWords[0] = 222;
+        // s_requests[requestId].randomWords[1] = 222;
+
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);

@@ -41,7 +41,7 @@ def fund_with_LINK(ContractAddress, _account=None, linkTokenAddress=None, amount
     account = _account if _account else autoAccount(_NetWork)
     LinkToken = interface.LinkTokenInterface(linkTokenAddress)
     Txn = LinkToken.transfer(ContractAddress, amount, {"from": account})
-    # Txn.wait(1)
+    Txn.wait(1)
         
 def test_getEntranceFee():
     Current_Network= network.show_active()  # type: ignore
@@ -64,7 +64,7 @@ def test_Functionality():
     # pytest.skip("Not Yet")
     # Arrange:
     Current_Network= network.show_active()  # type: ignore
-    deployedContract, ownerAccount = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
+    deployedContract, ownerAccount = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
     print('deployedContract Address: ', deployedContract.address)
     
     # Act:
@@ -77,19 +77,23 @@ def test_Functionality():
     deployedContract.enter({"from": ownerAccount, "value": entranceCost+100})
     print("Number of Players: ", deployedContract.getPlayersCount())
     
-    print("Charging Link Token.") # 8:11:00
+    print("Charging Link Token ...") # 8:11:00
     print("Balance Before: ", deployedContract.getLinkBalance())
     fund_with_LINK(deployedContract.address, ownerAccount, config["networks"][Current_Network]["link"], 2*10**18, Current_Network)
     print("Balance After: ", deployedContract.getLinkBalance())
     
     print("Lottery Ended, Calculating the Winner.")
     Txn = deployedContract.endLottery({"from": ownerAccount})
-    print("Remained Balance: ", deployedContract.getLinkBalance())
+    Txn.wait(1)
     assert deployedContract.lotteryState() == LOTTERY_STATES["CALCULATING_WINNER"]
+    print("Remained Balance: ", deployedContract.getLinkBalance())
     
     print("withdrawing Link ...")
     Txn = deployedContract.withdrawLink({"from": ownerAccount})
-    Txn.wait(2)
+    Txn.wait(8)
     print("Link Balance: ", deployedContract.getLinkBalance())
     
+    print("s_requests[reqID]: ", deployedContract.s_requests(deployedContract.lastRequestId()))
+    print("myRand: ", deployedContract.myRand(0), deployedContract.myRand(1))
+    print("Winner: ", deployedContract.Winner())
     # Assert:
