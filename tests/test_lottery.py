@@ -41,7 +41,7 @@ def fund_with_LINK(ContractAddress, _account=None, linkTokenAddress=None, amount
     account = _account if _account else autoAccount(_NetWork)
     LinkToken = interface.LinkTokenInterface(linkTokenAddress)
     Txn = LinkToken.transfer(ContractAddress, amount, {"from": account})
-    Txn.wait(1)
+    # Txn.wait(1)
         
 def test_getEntranceFee():
     Current_Network= network.show_active()  # type: ignore
@@ -75,16 +75,21 @@ def test_Functionality():
     print("Entering Lottery: ")
     entranceCost = deployedContract.getEntranceFee()
     deployedContract.enter({"from": ownerAccount, "value": entranceCost+100})
+    print("Number of Players: ", deployedContract.getPlayersCount())
     
     print("Charging Link Token.") # 8:11:00
+    print("Balance Before: ", deployedContract.getLinkBalance())
     fund_with_LINK(deployedContract.address, ownerAccount, config["networks"][Current_Network]["link"], 2*10**18, Current_Network)
+    print("Balance After: ", deployedContract.getLinkBalance())
     
     print("Lottery Ended, Calculating the Winner.")
     Txn = deployedContract.endLottery({"from": ownerAccount})
-    Txn.wait(1)
+    print("Remained Balance: ", deployedContract.getLinkBalance())
     assert deployedContract.lotteryState() == LOTTERY_STATES["CALCULATING_WINNER"]
     
     print("withdrawing Link ...")
-    deployedContract.withdrawLink({"from": ownerAccount})
+    Txn = deployedContract.withdrawLink({"from": ownerAccount})
+    Txn.wait(2)
+    print("Link Balance: ", deployedContract.getLinkBalance())
     
     # Assert:
