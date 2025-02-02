@@ -115,8 +115,8 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     ) internal override {
         require(lotteryState == LOTTERY_STATES.CALCULATING_WINNER, "Not Yet!");
         require(s_requests[_requestId].paid > 0, "request not found");
-        s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
+        s_requests[_requestId].fulfilled = true;
         myRand = _randomWords;
 
         uint WinnerIndex = _randomWords[0] % listOfPlayers.length;
