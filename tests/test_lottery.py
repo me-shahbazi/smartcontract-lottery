@@ -16,7 +16,11 @@ def deployOn_TestNet(_new, _currentNetwork):
         testAccount = autoAccount(_currentNetwork)
         # deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'],{"from": testAccount})
         try:
-            deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'], {"from": testAccount})
+            deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'],
+                                              config["networks"][_currentNetwork]["wrapper"],
+                                              config["networks"][_currentNetwork]["link"], 
+                                              {"from": testAccount}
+                                              )
         except Exception as e:
             print(f"Deployment failed: {e}")
     else:
@@ -36,7 +40,7 @@ def test_getEntranceFee():
     
 def test_rand():
     Current_Network= network.show_active()  # type: ignore
-    deployedContract, ownerAccount = deployOn_TestNet(_new=True, _currentNetwork=Current_Network)
+    deployedContract, ownerAccount = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
     randomNumber = deployedContract.randomNumCalc({"from": ownerAccount})
     # Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
     print("Random Calculated Number:", randomNumber)
