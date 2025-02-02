@@ -53,6 +53,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     LOTTERY_STATES public lotteryState;
     //fuji: 0x86d67c3D38D2bCeE722E601025C25a575021c6EA,0x327B83F409E1D5f13985c6d0584420FA648f1F56,0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846
     //sepo: 0x694AA1769357215DE4FAC081bf1f309aDC325306,0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1,0x779877A7B0D9E8603169DdbD7836e478b4624789
+    //Wrong Wrapper Address Can cause deployment collision.
     constructor(address _priceFeedAddress, address _wrapperAddress, address _link)
                 ConfirmedOwner(msg.sender)
                 VRFV2PlusWrapperConsumerBase(_wrapperAddress) 

@@ -1,5 +1,6 @@
 from brownie import accounts, network, config
 from brownie import lottery # type: ignore
+import pytest
 
 def autoAccount(_currentNetwork):
     if _currentNetwork == 'avax-test':
@@ -45,3 +46,9 @@ def test_rand():
     # Do NOT forget {"from": ownerAccount} when ever you gonna call this func using brownie
     print("Random Calculated Number:", randomNumber)
     assert randomNumber in range(100)
+    
+def test_Functionality():
+    pytest.skip("Not Yet")
+    Current_Network= network.show_active()  # type: ignore
+    deployedContract, _ = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
+    
