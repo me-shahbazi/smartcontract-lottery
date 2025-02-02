@@ -143,6 +143,15 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         );
     }
 
+    function getPlayersCount() public view returns(uint){
+        return listOfPlayers.length;
+    }
+    
+    function getLinkBalance() public view returns(uint){
+        LinkTokenInterface link = LinkTokenInterface(linkAddress);
+        return link.balanceOf(address(this));
+    }
+
     event Received(address, uint256);
 
     receive() external payable {

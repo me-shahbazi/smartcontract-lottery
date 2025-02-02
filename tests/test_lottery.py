@@ -1,6 +1,12 @@
 from brownie import accounts, network, config
-from brownie import lottery # type: ignore
+from brownie import lottery, interface # type: ignore
 import pytest
+
+LOTTERY_STATES = {
+        'OPEN': 0,
+        'CLOSED': 1,
+        'CALCULATING_WINNER': 2,
+    }
 
 def autoAccount(_currentNetwork):
     if _currentNetwork == 'avax-test':
@@ -29,6 +35,13 @@ def deployOn_TestNet(_new, _currentNetwork):
         deployedContract = lottery[-1]
     
     return deployedContract, testAccount
+
+def fund_with_LINK(ContractAddress, _account=None, linkTokenAddress=None, amount=2*10**18, _NetWork=network.show_active() ): # type: ignore
+    # 7:42
+    account = _account if _account else autoAccount(_NetWork)
+    LinkToken = interface.LinkTokenInterface(linkTokenAddress)
+    Txn = LinkToken.transfer(ContractAddress, amount, {"from": account})
+    Txn.wait(1)
         
 def test_getEntranceFee():
     Current_Network= network.show_active()  # type: ignore
@@ -48,7 +61,30 @@ def test_rand():
     assert randomNumber in range(100)
     
 def test_Functionality():
-    pytest.skip("Not Yet")
+    # pytest.skip("Not Yet")
+    # Arrange:
     Current_Network= network.show_active()  # type: ignore
-    deployedContract, _ = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
+    deployedContract, ownerAccount = deployOn_TestNet(_new=False, _currentNetwork=Current_Network)
+    print('deployedContract Address: ', deployedContract.address)
     
+    # Act:
+    if deployedContract.lotteryState() == 1:
+        print("Starting Lottery ...")
+        deployedContract.startLottery({"from": ownerAccount})
+    
+    print("Entering Lottery: ")
+    entranceCost = deployedContract.getEntranceFee()
+    deployedContract.enter({"from": ownerAccount, "value": entranceCost+100})
+    
+    print("Charging Link Token.") # 8:11:00
+    fund_with_LINK(deployedContract.address, ownerAccount, config["networks"][Current_Network]["link"], 2*10**18, Current_Network)
+    
+    print("Lottery Ended, Calculating the Winner.")
+    Txn = deployedContract.endLottery({"from": ownerAccount})
+    Txn.wait(1)
+    assert deployedContract.lotteryState() == LOTTERY_STATES["CALCULATING_WINNER"]
+    
+    print("withdrawing Link ...")
+    deployedContract.withdrawLink({"from": ownerAccount})
+    
+    # Assert:
