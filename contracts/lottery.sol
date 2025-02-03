@@ -30,7 +30,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
 
     uint32 internal numWords = 2;
     uint16 internal requestConfirmations = 3;
-    uint32 internal callbackGasLimit = 6000000;//Gwei
+    uint32 internal callbackGasLimit /*= 6000000*/;//Gwei
     
     uint256[] public requestIds;
     uint256 public lastRequestId;
@@ -51,10 +51,10 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         CALCULATING_WINNER
     }
     LOTTERY_STATES public lotteryState;
-    //fuji: 0x86d67c3D38D2bCeE722E601025C25a575021c6EA,0x327B83F409E1D5f13985c6d0584420FA648f1F56,0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846
-    //sepo: 0x694AA1769357215DE4FAC081bf1f309aDC325306,0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1,0x779877A7B0D9E8603169DdbD7836e478b4624789
+    //fuji: 6000000,0x86d67c3D38D2bCeE722E601025C25a575021c6EA,0x327B83F409E1D5f13985c6d0584420FA648f1F56,0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846
+    //sepo: 6000000,0x694AA1769357215DE4FAC081bf1f309aDC325306,0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1,0x779877A7B0D9E8603169DdbD7836e478b4624789
     //Wrong Wrapper Address Can cause deployment collision.
-    constructor(address _priceFeedAddress, address _wrapperAddress, address _link)
+    constructor(uint32 _callbackGasLimit, address _priceFeedAddress, address _wrapperAddress, address _link)
                 ConfirmedOwner(msg.sender)
                 VRFV2PlusWrapperConsumerBase(_wrapperAddress) 
         {  
@@ -62,6 +62,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
             entranceFee = 50 * (10**18);
             priceFeed = AggregatorV3Interface(_priceFeedAddress);
             lotteryState = LOTTERY_STATES.CLOSED;
+            callbackGasLimit = _callbackGasLimit;
     }
 
     function enter() public payable{

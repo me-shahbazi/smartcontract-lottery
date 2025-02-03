@@ -23,7 +23,8 @@ def deployOn_TestNet(_new, _currentNetwork):
         testAccount = autoAccount(_currentNetwork)
         # deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'],{"from": testAccount})
         try:
-            deployedContract = lottery.deploy(config["networks"][_currentNetwork]['ethusd'],
+            deployedContract = lottery.deploy(1000000,
+                                              config["networks"][_currentNetwork]['ethusd'],
                                               config["networks"][_currentNetwork]["wrapper"],
                                               config["networks"][_currentNetwork]["link"], 
                                               {"from": testAccount}
