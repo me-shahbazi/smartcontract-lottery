@@ -83,18 +83,19 @@ def test_Functionality():
     fund_with_LINK(deployedContract.address, ownerAccount, config["networks"][Current_Network]["link"], 2*10**18, Current_Network)
     print("Balance After: ", deployedContract.getLinkBalance())
     
-    print("Lottery Ended, Calculating the Winner.")
-    Txn = deployedContract.endLottery({"from": ownerAccount})
+    Txn = deployedContract.endLottery({"from": ownerAccount, "gas_limit": 500000})
     Txn.wait(1)
+    print("Lottery Ended, Calculating the Winner.")
     assert deployedContract.lotteryState() == LOTTERY_STATES["CALCULATING_WINNER"]
     print("Remained Balance: ", deployedContract.getLinkBalance())
     
     print("withdrawing Link ...")
     Txn = deployedContract.withdrawLink({"from": ownerAccount})
-    Txn.wait(8)
+    Txn.wait(5)
     print("Link Balance: ", deployedContract.getLinkBalance())
     
     print("s_requests[reqID]: ", deployedContract.s_requests(deployedContract.lastRequestId()))
-    print("myRand: ", deployedContract.myRand(0), deployedContract.myRand(1))
+    if deployedContract.s_requests(deployedContract.lastRequestId())[1]:
+        print("myRand: ", deployedContract.myRand(0), deployedContract.myRand(1))
     print("Winner: ", deployedContract.Winner())
     # Assert:

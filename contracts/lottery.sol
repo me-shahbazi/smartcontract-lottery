@@ -102,11 +102,9 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         (requestId, reqPrice) = requestRandomness(callbackGasLimit, requestConfirmations, numWords, extraArgs);
         s_requests[requestId] = RequestStatus({
             paid: reqPrice,
-            randomWords: new uint256[](0),
+            randomWords: new uint256[](numWords),
             fulfilled: false
         });
-        // s_requests[requestId].randomWords[0] = 222;
-        // s_requests[requestId].randomWords[1] = 222;
 
         requestIds.push(requestId);
         lastRequestId = requestId;
