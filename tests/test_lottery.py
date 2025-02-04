@@ -29,6 +29,7 @@ def deployOn_TestNet(_new, _currentNetwork):
                                               config["networks"][_currentNetwork]["link"], 
                                               {"from": testAccount}
                                               )
+        #*** Sepolia (INFURA) needs VPN in Iran
         except Exception as e:
             print(f"Deployment failed: {e}")
     else:
