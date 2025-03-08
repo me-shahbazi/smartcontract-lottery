@@ -2,6 +2,8 @@ from brownie import accounts, network, config
 from brownie import lottery, interface # type: ignore
 import pytest
 
+# brownie test -s -k "test_Functionality" --network sepolia --disable-pytest-warnings
+
 LOTTERY_STATES = {
         'OPEN': 0,
         'CLOSED': 1,
@@ -70,31 +72,43 @@ def test_Functionality():
     print('deployedContract Address: ', deployedContract.address)
     
     # Act:
-    if deployedContract.lotteryState() == 1:
+    if deployedContract.lotteryState() == 1: #     enum LOTTERY_STATES {OPEN/*0*/, CLOSED,/*1*/, CALCULATING_WINNER/*2*/}
         print("Starting Lottery ...")
         deployedContract.startLottery({"from": ownerAccount})
     
-    print("Entering Lottery: ")
+    print("Entering Lottery... ")
     entranceCost = deployedContract.getEntranceFee()
+    print(f"Entrance fee is equal to: {entranceCost} Wei")
     deployedContract.enter({"from": ownerAccount, "value": entranceCost+100})
-    print("Number of Players: ", deployedContract.getPlayersCount())
+    print("Number of Players: ", deployedContract.getPlayersCount(),"\n")
     
     print("Charging Link Token ...") # 8:11:00
     print("Balance Before: ", deployedContract.getLinkBalance())
     fund_with_LINK(deployedContract.address, ownerAccount, config["networks"][Current_Network]["link"], 2*10**18, Current_Network)
-    print("Balance After: ", deployedContract.getLinkBalance())
+    print("Balance After: ", deployedContract.getLinkBalance(), '\n')
+    initialLinkBalance = deployedContract.getLinkBalance()
     
     Txn = deployedContract.endLottery({"from": ownerAccount, "gas_limit": 500000})
     Txn.wait(1)
-    print("Lottery Ended, Calculating the Winner.")
+    requestId = Txn.events['RequestSent']['requestId']
+    numWords = Txn.events['RequestSent']['numWords']
+    print(f'requestId: ', requestId, " Based On RequestSent **event** Emission")
+    print(f'requestId: ', deployedContract.lastRequestId(), " Based On deployedContract.lastRequestId()")
+    print(f'numWords: ', numWords, " Based On RequestSent **event** Emission")
+    print('\n')
+    
+    print("Lottery Ended, Calculating the Winner...")
     assert deployedContract.lotteryState() == LOTTERY_STATES["CALCULATING_WINNER"]
-    print("Remained Balance: ", deployedContract.getLinkBalance())
+    print("Remained Link Balance: ", deployedContract.getLinkBalance(), '\n')
+    finalLinkBalance = deployedContract.getLinkBalance()
     
     print("withdrawing Link ...")
     Txn = deployedContract.withdrawLink({"from": ownerAccount})
     Txn.wait(5)
-    print("Link Balance: ", deployedContract.getLinkBalance())
+    print("Link Balance: ", deployedContract.getLinkBalance(),'\n')
+    assert deployedContract.getLinkBalance() == 0
     
+    print("VRF Cost: ", initialLinkBalance-finalLinkBalance , '(Link)')
     print("s_requests[reqID]: ", deployedContract.s_requests(deployedContract.lastRequestId()))
     if deployedContract.s_requests(deployedContract.lastRequestId())[1]:
         print("myRand: ", deployedContract.myRand(0), deployedContract.myRand(1))

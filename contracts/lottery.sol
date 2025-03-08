@@ -18,6 +18,7 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         uint256[] randomWords,
         uint256 payment
     );
+    event Received(address, uint256);
 
     address payable[] public listOfPlayers;
     address payable public Winner;
@@ -118,9 +119,10 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
     ) internal override {
         require(lotteryState == LOTTERY_STATES.CALCULATING_WINNER, "Not Yet!");
         require(s_requests[_requestId].paid > 0, "request not found");
-        s_requests[_requestId].randomWords = _randomWords;
+        
+        //s_requests[_requestId].randomWords = _randomWords;
         s_requests[_requestId].fulfilled = true;
-        myRand = _randomWords;
+        myRand = _randomWords; // uint256[] public myRand;
 
         uint WinnerIndex = _randomWords[0] % listOfPlayers.length;
         Winner = listOfPlayers[WinnerIndex];
@@ -154,7 +156,6 @@ contract lottery is  VRFV2PlusWrapperConsumerBase, ConfirmedOwner {
         return link.balanceOf(address(this));
     }
 
-    event Received(address, uint256);
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
